@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Workshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-elevated: #1a1a26;
+    --accent-warm: #f0a050;
+    --accent-coral: #e8654a;
+    --accent-blue: #4a8fe8;
+    --accent-mint: #50d0a0;
+    --accent-purple: #a07de8;
+    --text-primary: #eaeaf0;
+    --text-secondary: #8888a0;
+    --text-muted: #55556a;
+    --border: rgba(255,255,255,0.06);
+    --red-soft: #e85454;
+    --green-soft: #50d0a0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg-deep); color: var(--text-primary); font-family: 'DM Sans', sans-serif; line-height: 1.7; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+  }
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: .1s; } .reveal-delay-2 { transition-delay: .2s; }
+  .reveal-delay-3 { transition-delay: .3s; } .reveal-delay-4 { transition-delay: .4s; }
+  .reveal-delay-5 { transition-delay: .5s; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; padding: 2rem; overflow: hidden; }
+  .hero-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%); }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.3; }
+  .hero-glow-1 { background: var(--accent-coral); top: -200px; right: -100px; }
+  .hero-glow-2 { background: var(--accent-blue); bottom: -200px; left: -100px; opacity: 0.2; }
+  .hero-content { text-align: center; position: relative; z-index: 2; max-width: 900px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(240,160,80,0.1); border: 1px solid rgba(240,160,80,0.25); border-radius: 100px; padding: 8px 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-warm); margin-bottom: 2.5rem; animation: fadeDown 1s ease-out 0.2s both; }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--accent-warm); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem,7vw,6rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem; animation: fadeUp 1s ease-out 0.4s both; }
+  .hero h1 span { background: linear-gradient(135deg, var(--accent-warm), var(--accent-coral)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 1.2rem; color: var(--text-secondary); max-width: 560px; margin: 0 auto 3rem; font-weight: 300; animation: fadeUp 1s ease-out 0.6s both; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--accent-warm), var(--accent-coral)); color: #fff; padding: 14px 36px; border-radius: 100px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: transform 0.3s, box-shadow 0.3s; animation: fadeUp 1s ease-out 0.8s both; }
+  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(240,160,80,0.3); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  .floating-tokens { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+  .float-token { position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.06); animation: floatUp linear infinite; white-space: nowrap; }
+  @keyframes floatUp { 0%{transform:translateY(100vh) rotate(0);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-10vh) rotate(15deg);opacity:0} }
+
+  /* SECTIONS */
+  section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+  .section-label { display: inline-flex; align-items: center; gap: 10px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-warm); margin-bottom: 1rem; }
+  .section-label::before { content: ''; width: 30px; height: 2px; background: var(--accent-warm); }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
+  .section-desc { color: var(--text-secondary); font-size: 1.05rem; max-width: 620px; margin-bottom: 3.5rem; font-weight: 300; }
+  .divider { max-width: 1200px; margin: 0 auto; height: 1px; background: linear-gradient(90deg, transparent, var(--border), var(--accent-warm), var(--border), transparent); }
+
+  /* WHY CARDS */
+  .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+  .why-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s; position: relative; overflow: hidden; }
+  .why-card:hover { transform: translateY(-4px); border-color: rgba(240,160,80,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .why-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent-warm),var(--accent-coral)); opacity:0; transition:opacity 0.4s; }
+  .why-card:hover::before { opacity: 1; }
+  .why-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.2rem; }
+  .why-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.6rem; }
+  .why-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+
+  /* ══════════════════════════════════
+     BEFORE / AFTER COMPARISONS
+     ══════════════════════════════════ */
+  .ba-pair { margin-bottom: 2.5rem; }
+  .ba-context {
+    font-size: 0.82rem; font-weight: 600; color: var(--accent-warm);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ba-context::before { content: ''; width: 20px; height: 2px; background: var(--accent-warm); }
+  .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 800px) { .ba-grid { grid-template-columns: 1fr; } }
+  .ba-side { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: var(--bg-card); }
+  .ba-side.bad { border-color: rgba(232,84,84,0.2); }
+  .ba-side.good { border-color: rgba(80,208,160,0.2); }
+  .ba-tag {
+    padding: 10px 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ba-side.bad .ba-tag { background: rgba(232,84,84,0.08); color: var(--red-soft); }
+  .ba-side.good .ba-tag { background: rgba(80,208,160,0.08); color: var(--green-soft); }
+  .ba-prompt-area { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .ba-prompt-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .ba-prompt-text {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; color: var(--text-primary);
+    min-height: 60px;
+  }
+  .ba-response-area { padding: 1.2rem 1.5rem; }
+  .ba-response-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .ba-response-text { font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); }
+  .ba-response-text strong { color: var(--text-primary); }
+  .ba-side.bad .ba-response-text { opacity: 0.7; }
+
+  .ba-verdict {
+    margin-top: 1rem; padding: 12px 18px; border-radius: 10px;
+    font-size: 0.82rem; line-height: 1.6;
+    background: rgba(80,208,160,0.06); border: 1px solid rgba(80,208,160,0.15); color: var(--accent-mint);
+  }
+  .ba-verdict strong { color: var(--accent-mint); }
+
+  /* Typing cursor */
+  .typing-cursor::after {
+    content: '▋'; animation: blink 1s step-end infinite; color: var(--accent-warm);
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* TIPS with examples */
+  .tips-grid { display: grid; }
+  .tip-row { display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid var(--border); transition: background 0.3s; }
+  .tip-row:hover { background: rgba(255,255,255,0.02); }
+  .tip-row:last-child { border-bottom: none; }
+  .tip-label { padding: 1.5rem 1rem 1.5rem 1.5rem; display: flex; align-items: flex-start; gap: 10px; border-right: 1px solid var(--border); }
+  .tip-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent-warm); background: rgba(240,160,80,0.1); width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tip-name { font-weight: 700; font-size: 0.92rem; padding-top: 2px; }
+  .tip-body { padding: 1.5rem 1.5rem 1.5rem 2rem; }
+  .tip-desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 10px; }
+  .tip-example {
+    background: var(--bg-deep); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 1.6; color: var(--accent-mint);
+  }
+  .tip-example .bad { color: var(--red-soft); text-decoration: line-through; opacity: 0.6; }
+  .tip-example .arrow { color: var(--text-muted); margin: 0 4px; }
+  @media (max-width: 700px) {
+    .tip-row { grid-template-columns: 1fr; }
+    .tip-label { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem; }
+  }
+
+  /* SAMPLING */
+  .sampling-demo { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; overflow: hidden; position: relative; }
+  .sampling-demo::before { content:''; position:absolute; top:-80px; right:-80px; width:250px; height:250px; background:radial-gradient(circle,rgba(160,125,232,0.1),transparent 70%); pointer-events:none; }
+  .chat-bubble-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 1.5rem; }
+  .chat-bubble-row.user { justify-content: flex-end; }
+  .chat-avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .chat-bubble { max-width: 420px; padding: 14px 20px; border-radius: 16px; font-size: 0.92rem; line-height: 1.5; }
+  .chat-bubble.user-msg { background: var(--accent-purple); color: #fff; border-bottom-right-radius: 4px; }
+  .chat-bubble.ai-msg { background: var(--accent-mint); color: #0a0a0f; border-bottom-left-radius: 4px; font-weight: 500; }
+  .token-strip { display: flex; gap: 2px; justify-content: center; margin: 1.5rem 0; flex-wrap: wrap; }
+  .token-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 3px 7px; background: rgba(255,255,255,0.06); border-radius: 4px; color: var(--text-muted); opacity: 0; animation: tokenPop 0.3s ease forwards; }
+  @keyframes tokenPop { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
+  .prob-bars-container { margin-top: 2rem; display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .prob-bar-row { display: grid; grid-template-columns: 60px 1fr 50px; align-items: center; gap: 12px; }
+  .prob-label { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700; text-align: center; padding: 6px 0; border-radius: 8px; }
+  .prob-track { height: 38px; border-radius: 10px; background: rgba(255,255,255,0.04); overflow: hidden; }
+  .prob-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1.8s cubic-bezier(0.22,1,0.36,1); }
+  .prob-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+  .sampling-note { text-align: center; margin-top: 2rem; padding: 1rem 1.5rem; background: rgba(232,101,74,0.08); border: 1px dashed rgba(232,101,74,0.25); border-radius: 12px; color: var(--accent-coral); font-size: 0.85rem; font-weight: 500; }
+
+  /* TIMELINE */
+  .timeline-container { position: relative; overflow-x: auto; padding: 2rem 0 3rem; }
+  .timeline-track { display: flex; align-items: flex-start; min-width: max-content; position: relative; padding: 0 2rem; }
+  .timeline-line { position: absolute; top: 50px; left: 0; right: 0; height: 2px; background: var(--border); }
+  .timeline-cutoff-marker { position: absolute; top: 20px; height: 80px; width: 3px; background: var(--accent-coral); box-shadow: 0 0 15px rgba(232,101,74,0.5); z-index: 2; }
+  .cutoff-label { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; color: var(--accent-coral); text-transform: uppercase; letter-spacing: 0.1em; }
+  .timeline-item { flex-shrink: 0; width: 130px; text-align: center; position: relative; padding-top: 70px; }
+  .timeline-dot { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--text-muted); z-index: 1; transition: all 0.3s; }
+  .timeline-item:hover .timeline-dot { border-color: var(--accent-warm); background: var(--accent-warm); transform: translateX(-50%) scale(1.3); }
+  .timeline-item.past-cutoff .timeline-dot { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); border-style: dashed; }
+  .timeline-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; transition: border-color 0.3s, transform 0.3s; }
+  .timeline-item:hover .timeline-card { border-color: rgba(240,160,80,0.3); transform: translateY(-3px); }
+  .timeline-item.past-cutoff .timeline-card { border-style: dashed; opacity: 0.5; }
+  .timeline-date { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; }
+  .timeline-legend { display: flex; gap: 2rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ISSUES */
+  .issues-grid { display: grid; gap: 1.5rem; }
+  .issue-branch { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color 0.4s; }
+  .issue-header { display: flex; align-items: center; gap: 16px; padding: 1.5rem 2rem; cursor: pointer; user-select: none; transition: background 0.3s; }
+  .issue-header:hover { background: rgba(255,255,255,0.02); }
+  .issue-icon-box { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+  .issue-header-text h3 { font-size: 1.05rem; font-weight: 700; }
+  .issue-header-text p { font-size: 0.82rem; color: var(--text-muted); }
+  .issue-chevron { margin-left: auto; width: 24px; height: 24px; transition: transform 0.4s; color: var(--text-muted); flex-shrink: 0; }
+  .issue-branch.open .issue-chevron { transform: rotate(180deg); }
+  .issue-solutions { max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.22,1,0.36,1); }
+  .issue-branch.open .issue-solutions { max-height: 800px; }
+  .solution-list { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+  .solution-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: var(--bg-deep); border-radius: 12px; border: 1px solid var(--border); transition: border-color 0.3s, transform 0.3s; }
+  .solution-item:hover { border-color: rgba(80,208,160,0.25); transform: translateX(4px); }
+  .solution-arrow { color: var(--accent-mint); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .solution-item strong { font-size: 0.88rem; display: block; margin-bottom: 2px; }
+  .solution-item span { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+  .solution-examples { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .example-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 3px 10px; background: rgba(80,208,160,0.08); border: 1px solid rgba(80,208,160,0.15); border-radius: 100px; color: var(--accent-mint); }
+
+  /* PATTERNS */
+  .patterns-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .pattern-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: transform 0.4s, border-color 0.4s; }
+  .pattern-card:hover { transform: translateY(-3px); border-color: rgba(74,143,232,0.25); }
+  .pattern-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 1rem; }
+  .pattern-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.8rem; }
+  .pattern-card p { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.6; }
+  .code-block { background: var(--bg-deep); border-radius: 10px; padding: 1rem 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.7; color: var(--text-secondary); border: 1px solid var(--border); overflow-x: auto; }
+  .code-block .kw { color: var(--accent-coral); } .code-block .str { color: var(--accent-mint); } .code-block .cmt { color: var(--text-muted); font-style: italic; }
+
+  /* ══════════════════════════════
+     PROMPT RECIPES
+     ══════════════════════════════ */
+  .recipes-grid { display: grid; gap: 1.5rem; }
+  .recipe-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; position: relative; overflow: hidden;
+    transition: border-color 0.4s, transform 0.4s;
+  }
+  .recipe-card:hover { border-color: rgba(240,160,80,0.2); transform: translateY(-2px); }
+  .recipe-card::after {
+    content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
+    background: radial-gradient(circle at top right, rgba(240,160,80,0.05), transparent 70%);
+    pointer-events: none;
+  }
+  .recipe-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .recipe-emoji { font-size: 1.6rem; }
+  .recipe-card h3 { font-size: 1.05rem; font-weight: 700; }
+  .recipe-card .recipe-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+  .recipe-prompt-block {
+    background: var(--bg-deep); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.2rem 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    line-height: 1.8; color: var(--text-primary); position: relative;
+    white-space: pre-wrap;
+  }
+  .recipe-prompt-block .placeholder {
+    color: var(--accent-warm); background: rgba(240,160,80,0.08);
+    padding: 1px 6px; border-radius: 4px; font-style: italic;
+  }
+  .recipe-copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; transition: all 0.3s; font-family: 'DM Sans', sans-serif;
+  }
+  .recipe-copy-btn:hover { background: rgba(240,160,80,0.15); color: var(--accent-warm); border-color: rgba(240,160,80,0.3); }
+
+  /* COMPARISON */
+  .comparison-wrapper { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-card); }
+  .comp-table { width: 100%; min-width: 1000px; border-collapse: collapse; font-size: 0.85rem; }
+  .comp-table thead th { padding: 1rem 0.8rem; text-align: center; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; border-bottom: 2px solid var(--border); background: var(--bg-card); white-space: nowrap; }
+  .comp-table thead th:first-child { text-align: left; padding-left: 1.5rem; min-width: 170px; }
+  .comp-table tbody td { padding: 0.8rem; text-align: center; border-bottom: 1px solid var(--border); }
+  .comp-table tbody td:first-child { text-align: left; padding-left: 1.5rem; font-weight: 600; }
+  .comp-table tbody tr:last-child td { border-bottom: none; }
+  .comp-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .score-dot { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; }
+  .score-5 { background: rgba(80,208,160,0.15); color: var(--accent-mint); }
+  .score-4 { background: rgba(74,143,232,0.12); color: var(--accent-blue); }
+  .score-3 { background: rgba(240,160,80,0.1); color: var(--accent-warm); }
+  .score-2 { background: rgba(232,101,74,0.1); color: var(--accent-coral); }
+  .score-1 { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+  .best-for-cell { font-size: 0.72rem; color: var(--text-secondary); font-weight: 500; line-height: 1.4; }
+
+  /* MISTAKES */
+  .mistakes-list { display: grid; gap: 1rem; }
+  .mistake-item { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: start; padding: 1.5rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; transition: border-color 0.3s; }
+  .mistake-item:hover { border-color: rgba(232,101,74,0.2); }
+  .mistake-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(232,101,74,0.1); color: var(--accent-coral); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+  .mistake-item h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .mistake-item p { color: var(--text-secondary); font-size: 0.88rem; }
+
+  /* MINDSET */
+  .mindset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .mindset-card { text-align: center; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; transition: transform 0.4s, border-color 0.4s; }
+  .mindset-card:hover { transform: translateY(-4px); border-color: rgba(80,208,160,0.2); }
+  .mindset-emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+  .mindset-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .mindset-card p { color: var(--text-secondary); font-size: 0.85rem; }
+
+  footer { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 0.8rem; }
+  footer .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.6rem; }
+  .nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); cursor: pointer; transition: background 0.3s, transform 0.3s; border: none; padding: 0; }
+  .nav-dot.active { background: var(--accent-warm); transform: scale(1.4); }
+  .nav-dot:hover { background: var(--accent-warm); }
+  @media (max-width: 768px) { .nav-dots { display: none; } }
+  .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-coral)); z-index: 1000; width: 0%; }
+  #particleCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+  .pro-tip-box { margin-top: 2rem; padding: 1.2rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots">
+  <button class="nav-dot active" data-section="hero"></button>
+  <button class="nav-dot" data-section="why"></button>
+  <button class="nav-dot" data-section="beforeafter"></button>
+  <button class="nav-dot" data-section="sampling"></button>
+  <button class="nav-dot" data-section="cutoff"></button>
+  <button class="nav-dot" data-section="tips"></button>
+  <button class="nav-dot" data-section="issues"></button>
+  <button class="nav-dot" data-section="patterns"></button>
+  <button class="nav-dot" data-section="recipes"></button>
+  <button class="nav-dot" data-section="comparison"></button>
+  <button class="nav-dot" data-section="mindset"></button>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero" id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+  <div class="floating-tokens" id="floatingTokens"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Workshop 2026</div>
+    <h1>The Art of<br><span>Prompt Engineering</span></h1>
+    <p class="hero-sub">Master the skill that turns AI from a novelty into a superpower. Learn to communicate with language models precisely, creatively, and effectively.</p>
+    <a href="#why" class="hero-cta">Begin the Journey <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  </div>
+</header>
+<div class="divider"></div>
+
+<!-- ═══ WHY ═══ -->
+<section id="why">
+  <div class="reveal">
+    <div class="section-label">Module 01</div>
+    <h2 class="section-title">Why Prompt Engineering<br>Matters</h2>
+    <p class="section-desc">The same AI model can give wildly different results based on how you ask. This isn't a nice-to-have — it's the core skill of the AI era.</p>
+  </div>
+  <div class="why-grid">
+    <div class="why-card reveal reveal-delay-1"><div class="why-icon" style="background:rgba(240,160,80,0.1);color:var(--accent-warm);">⚡</div><h3>10× Productivity</h3><p>One great prompt replaces a dozen mediocre ones, saving hours every week.</p></div>
+    <div class="why-card reveal reveal-delay-2"><div class="why-icon" style="background:rgba(74,143,232,0.1);color:var(--accent-blue);">🎯</div><h3>Precision Output</h3><p>Get exactly the format, tone, depth, and structure you need — the first time.</p></div>
+    <div class="why-card reveal reveal-delay-3"><div class="why-icon" style="background:rgba(80,208,160,0.1);color:var(--accent-mint);">🧠</div><h3>Unlock Hidden Abilities</h3><p>Most people use 10% of what AI can do. Advanced techniques unlock the rest.</p></div>
+    <div class="why-card reveal reveal-delay-4"><div class="why-icon" style="background:rgba(232,101,74,0.1);color:var(--accent-coral);">🏆</div><h3>Career Differentiator</h3><p>Everyone has AI. Those who wield it skillfully will stand apart.</p></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ BEFORE & AFTER ═══ -->
+<section id="beforeafter">
+  <div class="reveal">
+    <div class="section-label">Module 02</div>
+    <h2 class="section-title">Before & After:<br>See the Difference</h2>
+    <p class="section-desc">The same task, two different prompts. Watch how specificity, context, and structure transform AI output from generic to gold.</p>
+  </div>
+
+  <!-- Example 1: Email -->
+  <div class="ba-pair reveal">
+    <div class="ba-context">Example 1 — Writing a professional email</div>
+    <div class="ba-grid">
+      <div class="ba-side bad">
+        <div class="ba-tag">✕ Vague prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write me an email to my boss about being late.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text">Subject: Being Late<br><br>Dear Boss,<br><br>I am writing to inform you that I was late today. I apologize for the inconvenience. It won't happen again.<br><br>Sincerely, [Your Name]</div>
+        </div>
+      </div>
+      <div class="ba-side good">
+        <div class="ba-tag">✓ Engineered prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write a professional but warm email to my manager Sarah. I was 20 minutes late to the team standup today because of a traffic accident on the highway. I want to apologize sincerely, briefly explain what happened, and propose that I'll dial in from my phone if I'm ever stuck in traffic again. Keep it under 100 words. Tone: respectful but not overly formal — we have a good working relationship.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text"><strong>Subject: Sorry about this morning</strong><br><br>Hi Sarah,<br><br>I owe you an apology for missing the first 20 minutes of standup. There was a multi-car accident on the I-90 that brought traffic to a standstill — no way around it, unfortunately.<br><br>I know the standup sets the pace for the day, so going forward, if I'm ever stuck like that again, I'll dial in from my phone rather than show up late.<br><br>Thanks for understanding. I'll make sure the team has my updates first thing tomorrow.<br><br>Best, [Name]</div>
+        </div>
+      </div>
+    </div>
+    <div class="ba-verdict"><strong>What changed:</strong> Adding the recipient's name, the specific situation, a proposed solution, word limit, and tone guidance turns a generic template into a ready-to-send email.</div>
+  </div>
+
+  <!-- Example 2: Research -->
+  <div class="ba-pair reveal">
+    <div class="ba-context">Example 2 — Research & Analysis</div>
+    <div class="ba-grid">
+      <div class="ba-side bad">
+        <div class="ba-tag">✕ Vague prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Tell me about renewable energy.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text">Renewable energy comes from natural sources like sunlight, wind, and water. Types include solar, wind, hydroelectric, geothermal, and biomass. Renewable energy is important because it reduces greenhouse gas emissions and dependence on fossil fuels…<br><br><em>(continues for 800 generic words)</em></div>
+        </div>
+      </div>
+      <div class="ba-side good">
+        <div class="ba-tag">✓ Engineered prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">I'm a project manager at a mid-size manufacturing company in Germany. My CEO asked me to evaluate whether installing solar panels on our 3 factory rooftops makes financial sense.<br><br>Give me a concise briefing (300 words max) covering: 1) typical ROI timeline for industrial solar in Europe, 2) key incentives/subsidies in Germany as of 2025, 3) the 2 biggest risks to flag. End with a clear recommendation: go or no-go, and what data I should gather next.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text"><strong>Solar Feasibility Briefing — Industrial Rooftops, Germany</strong><br><br><strong>1. ROI Timeline:</strong> Industrial solar in central Europe typically pays back in 5–7 years, with 20+ year panel lifespans delivering 15–18% IRR after breakeven…<br><br><strong>2. German Incentives:</strong> The EEG feed-in tariff, KfW low-interest green loans, and accelerated depreciation under §7b…<br><br><strong>3. Top Risks:</strong> Grid connection delays (6–12 months in some regions) and structural load limits on older roofs…<br><br><strong>Recommendation: Go.</strong> Gather: roof structural assessments, 12-month energy bills, and 3 installer quotes…</div>
+        </div>
+      </div>
+    </div>
+    <div class="ba-verdict"><strong>What changed:</strong> Context (who you are, why you need this), format (numbered structure), constraints (300 words), and a specific deliverable (go/no-go + next steps) turned a Wikipedia summary into an actionable executive brief.</div>
+  </div>
+
+  <!-- Example 3: Code -->
+  <div class="ba-pair reveal">
+    <div class="ba-context">Example 3 — Coding Help</div>
+    <div class="ba-grid">
+      <div class="ba-side bad">
+        <div class="ba-tag">✕ Vague prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write a Python function to process data.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">def process_data(data):<br>&nbsp;&nbsp;result = []<br>&nbsp;&nbsp;for item in data:<br>&nbsp;&nbsp;&nbsp;&nbsp;result.append(item)<br>&nbsp;&nbsp;return result<br><br><em style="font-family:'DM Sans',sans-serif;color:var(--text-muted)">(…useless function that does nothing meaningful)</em></div>
+        </div>
+      </div>
+      <div class="ba-side good">
+        <div class="ba-tag">✓ Engineered prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write a Python function called `clean_sales_csv` that:<br>- Takes a file path to a CSV with columns: date, product, revenue, region<br>- Removes rows where revenue is negative or null<br>- Converts date strings ("MM/DD/YYYY") to datetime objects<br>- Returns a pandas DataFrame sorted by date descending<br>- Include type hints and a docstring<br>- Handle the case where the file doesn't exist (raise FileNotFoundError with a helpful message)</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">import pandas as pd<br>from pathlib import Path<br><br>def clean_sales_csv(file_path: str) -> pd.DataFrame:<br>&nbsp;&nbsp;"""Clean and validate sales CSV data..."""<br>&nbsp;&nbsp;path = Path(file_path)<br>&nbsp;&nbsp;if not path.exists():<br>&nbsp;&nbsp;&nbsp;&nbsp;raise FileNotFoundError(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f"Sales file not found: {path}")<br>&nbsp;&nbsp;df = pd.read_csv(path)<br>&nbsp;&nbsp;df = df.dropna(subset=["revenue"])<br>&nbsp;&nbsp;df = df[df["revenue"] >= 0]<br>&nbsp;&nbsp;df["date"] = pd.to_datetime(<br>&nbsp;&nbsp;&nbsp;&nbsp;df["date"], format="%m/%d/%Y")<br>&nbsp;&nbsp;return df.sort_values("date",<br>&nbsp;&nbsp;&nbsp;&nbsp;ascending=False).reset_index(drop=True)</div>
+        </div>
+      </div>
+    </div>
+    <div class="ba-verdict"><strong>What changed:</strong> Specifying the function name, input format, exact columns, edge cases, and code quality requirements (type hints, docstrings) yields production-ready code instead of a placeholder.</div>
+  </div>
+
+  <!-- Example 4: Creative -->
+  <div class="ba-pair reveal">
+    <div class="ba-context">Example 4 — Creative Writing / Content</div>
+    <div class="ba-grid">
+      <div class="ba-side bad">
+        <div class="ba-tag">✕ Vague prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write a LinkedIn post about AI.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text">🤖 AI is transforming the way we work! From automation to data analysis, artificial intelligence is revolutionizing every industry. Companies that embrace AI will thrive. Those that don't will be left behind. What do you think about AI? #AI #Innovation #FutureOfWork</div>
+        </div>
+      </div>
+      <div class="ba-side good">
+        <div class="ba-tag">✓ Engineered prompt</div>
+        <div class="ba-prompt-area">
+          <div class="ba-prompt-label">Prompt</div>
+          <div class="ba-prompt-text">Write a LinkedIn post (150 words max) from a VP of Operations at a logistics company. Share a specific story: we used AI to optimize our warehouse picking routes and cut average order fulfillment time from 12 minutes to 7 minutes. Tone: conversational, not hype-y. Include a surprising lesson we learned (the AI suggested changes our veteran staff initially resisted but later loved). End with a question that invites comments. No hashtag spam — max 3 relevant ones.</div>
+        </div>
+        <div class="ba-response-area">
+          <div class="ba-response-label">🤖 AI Response</div>
+          <div class="ba-response-text"><strong>The AI project our warehouse team almost killed</strong><br><br>Six months ago, we deployed an AI route optimizer across our 3 fulfillment centers. The algorithm redesigned picking paths our team had perfected over 15 years.<br><br>Reaction? "This robot doesn't know our warehouse."<br><br>But we ran a 2-week trial. Results: 12-minute average fulfillment → 7 minutes. A 42% improvement.<br><br>The surprise? Our most skeptical shift lead became its biggest advocate. "It found dead zones I'd been walking around for a decade."<br><br>The lesson: AI doesn't replace expertise — it reveals the blind spots expertise can't see.<br><br>What's one process at your company that "works fine" but probably shouldn't?<br><br>#Logistics #AI #Operations</div>
+        </div>
+      </div>
+    </div>
+    <div class="ba-verdict"><strong>What changed:</strong> A specific story, a persona, concrete numbers, emotional arc (resistance → acceptance), and a format constraint turned generic AI hype into an engaging, authentic post that sounds like a real human wrote it.</div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ SAMPLING ═══ -->
+<section id="sampling">
+  <div class="reveal">
+    <div class="section-label">Module 03</div>
+    <h2 class="section-title">How LLMs Actually Think:<br><span style="color:var(--accent-purple)">Sampling & Hallucination</span></h2>
+    <p class="section-desc">LLMs don't "know" answers — they predict the most likely next token. Understanding this reveals why they sometimes get things confidently wrong.</p>
+  </div>
+  <div class="sampling-demo reveal" id="samplingDemo">
+    <div class="chat-bubble-row user">
+      <div class="chat-bubble user-msg">How many r's are there in the word "garlic"?</div>
+      <div class="chat-avatar" style="background:rgba(160,125,232,0.15);">🧑</div>
+    </div>
+    <div class="chat-bubble-row">
+      <div class="chat-avatar" style="background:rgba(80,208,160,0.15);">🤖</div>
+      <div class="chat-bubble ai-msg">The word "garlic" has <strong>1</strong> letter r.</div>
+    </div>
+    <div style="text-align:center; margin: 1.5rem 0 0.5rem;"><span style="font-size:0.75rem; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">UNDER THE HOOD — THE MODEL SEES TOKENS:</span></div>
+    <div class="token-strip" id="tokenStrip"></div>
+    <div style="text-align:center; margin: 2rem 0 0.8rem;"><span style="font-size:0.75rem; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">PROBABILITY DISTRIBUTION FOR THE ANSWER:</span></div>
+    <div class="prob-bars-container" id="probBars">
+      <div class="prob-bar-row"><div class="prob-label" style="background:rgba(232,101,74,0.15);color:var(--accent-coral);">1</div><div class="prob-track"><div class="prob-fill" data-width="80" style="background:linear-gradient(90deg,rgba(232,101,74,0.4),var(--accent-coral));"></div></div><div class="prob-pct">80%</div></div>
+      <div class="prob-bar-row"><div class="prob-label" style="background:rgba(240,160,80,0.12);color:var(--accent-warm);">0</div><div class="prob-track"><div class="prob-fill" data-width="18" style="background:linear-gradient(90deg,rgba(240,160,80,0.3),var(--accent-warm));"></div></div><div class="prob-pct">18%</div></div>
+      <div class="prob-bar-row"><div class="prob-label" style="background:rgba(80,208,160,0.12);color:var(--accent-mint);">2</div><div class="prob-track"><div class="prob-fill" data-width="1.9" style="background:linear-gradient(90deg,rgba(80,208,160,0.3),var(--accent-mint));"></div></div><div class="prob-pct">1.9%</div></div>
+    </div>
+    <div class="sampling-note">The correct answer is <strong>1</strong>, but ~18% of the time the model says <strong>0</strong>. The model picks from a probability distribution — it doesn't actually "count" letters. This is why you should ask it to spell out the word letter-by-letter first.</div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ KNOWLEDGE CUTOFF ═══ -->
+<section id="cutoff">
+  <div class="reveal">
+    <div class="section-label">Module 04</div>
+    <h2 class="section-title">The Knowledge Cutoff<br>Problem</h2>
+    <p class="section-desc">AI models are trained on data up to a specific date. After that, they're guessing — or simply don't know.</p>
+  </div>
+  <div class="reveal">
+    <div class="timeline-container">
+      <div class="timeline-track" id="timelineTrack">
+        <div class="timeline-line"></div>
+        <div class="timeline-cutoff-marker" id="cutoffMarker"><div class="cutoff-label">✂️ Knowledge Cutoff</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">Shakespeare's Hamlet</div><div class="timeline-date">1601</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">Technical manual</div><div class="timeline-date">1983</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">A novel</div><div class="timeline-date">Feb 2002</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">Cooking recipe</div><div class="timeline-date">May 2021</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">YouTube video</div><div class="timeline-date">Jan 2024</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">Chat transcript</div><div class="timeline-date">Mar 2025</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">Wikipedia article</div><div class="timeline-date">Jul 2025</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-card">News article</div><div class="timeline-date">Aug 2025</div></div>
+        <div class="timeline-item past-cutoff"><div class="timeline-dot"></div><div class="timeline-card">News article</div><div class="timeline-date">Sep 2025</div></div>
+        <div class="timeline-item past-cutoff"><div class="timeline-dot"></div><div class="timeline-card">Wikipedia update</div><div class="timeline-date">Oct 2025</div></div>
+        <div class="timeline-item past-cutoff"><div class="timeline-dot"></div><div class="timeline-card">New Excel feature</div><div class="timeline-date">Nov 2025</div></div>
+        <div class="timeline-item past-cutoff"><div class="timeline-dot"></div><div class="timeline-card">AI model release</div><div class="timeline-date">Dec 2025</div></div>
+      </div>
+    </div>
+    <div class="timeline-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--text-secondary);"></div> In training data</div>
+      <div class="legend-item"><div class="legend-dot" style="border:2px dashed var(--text-muted);background:transparent;"></div> After cutoff</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-coral);"></div> Boundary</div>
+    </div>
+    <div class="pro-tip-box"><span style="font-size:1.5rem;">💡</span><div><strong>Pro tip:</strong> <span style="color:var(--text-secondary);font-size:0.88rem;">When asking about recent events, tell the AI the current date and provide context. Use web search or RAG to bridge the gap. Say: "Today is April 8, 2026. Search the web for…"</span></div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ 10 PILLARS WITH EXAMPLES ═══ -->
+<section id="tips">
+  <div class="reveal">
+    <div class="section-label">Module 05</div>
+    <h2 class="section-title">The 10 Pillars of<br>Great Prompts</h2>
+    <p class="section-desc">Each pillar includes a concrete before → after example you can learn from immediately.</p>
+  </div>
+  <div class="tips-grid reveal" style="border:1px solid var(--border);border-radius:16px;background:var(--bg-card);overflow:hidden;">
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">01</span><span class="tip-name">Clarity</span></div><div class="tip-body"><div class="tip-desc">Be precise about what you want. Vague requests get vague responses.</div><div class="tip-example"><span class="bad">Tell me about marketing</span> <span class="arrow">→</span> Explain 3 digital marketing strategies effective for small e-commerce businesses selling handmade jewelry</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">02</span><span class="tip-name">Context</span></div><div class="tip-body"><div class="tip-desc">Provide background info. AI performs better with situation, audience, and purpose.</div><div class="tip-example"><span class="bad">Write a welcome message</span> <span class="arrow">→</span> I run a yoga studio for beginners aged 40+. Write a welcome email for someone who just signed up for their first class and might be nervous</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">03</span><span class="tip-name">Format</span></div><div class="tip-body"><div class="tip-desc">Specify structure: essay, bullets, table, JSON, numbered steps, etc.</div><div class="tip-example"><span class="bad">Compare these databases</span> <span class="arrow">→</span> Compare PostgreSQL vs MongoDB in a table with columns: Use Case, Scalability, Learning Curve, Cost. Rate each 1-5</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">04</span><span class="tip-name">Tone</span></div><div class="tip-body"><div class="tip-desc">Indicate voice: formal, casual, technical, ELI5, sarcastic, academic.</div><div class="tip-example"><span class="bad">Explain blockchain</span> <span class="arrow">→</span> Explain blockchain to my 70-year-old mother who barely uses email. Use analogies she'd understand, like a shared family recipe book</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">05</span><span class="tip-name">Examples</span></div><div class="tip-body"><div class="tip-desc">Show input → output pairs to teach the AI your expected format.</div><div class="tip-example">Convert these to slug format:<br>"Hello World" → "hello-world"<br>"My Blog Post!" → "my-blog-post"<br>Now convert: "AI & Machine Learning 101"</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">06</span><span class="tip-name">Length</span></div><div class="tip-body"><div class="tip-desc">State desired length explicitly — don't leave it to chance.</div><div class="tip-example"><span class="bad">Summarize this article</span> <span class="arrow">→</span> Summarize this article in exactly 3 bullet points, each under 20 words. Then add a one-sentence "so what?" takeaway</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">07</span><span class="tip-name">Decomposition</span></div><div class="tip-body"><div class="tip-desc">Break complex requests into steps. Ask AI to think before answering.</div><div class="tip-example"><span class="bad">Plan my product launch</span> <span class="arrow">→</span> Think step by step: 1) Identify the 3 biggest risks for launching a B2B SaaS in Q3, 2) For each risk, suggest a mitigation, 3) Then create a 4-week timeline</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">08</span><span class="tip-name">Constraints</span></div><div class="tip-body"><div class="tip-desc">Set boundaries: what to include, exclude, avoid, or require.</div><div class="tip-example"><span class="bad">Write a diet plan</span> <span class="arrow">→</span> Create a 5-day meal plan. Constraints: vegetarian, under 1800 cal/day, no soy (allergy), budget max €8/meal, prep time under 30 min</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">09</span><span class="tip-name">Role</span></div><div class="tip-body"><div class="tip-desc">Assign a persona: teacher, skeptic, editor, domain expert.</div><div class="tip-example"><span class="bad">Review my business plan</span> <span class="arrow">→</span> Act as a venture capitalist who has seen 500 pitches this year. Review my business plan. Be brutally honest about what wouldn't survive due diligence</div></div></div>
+
+    <div class="tip-row"><div class="tip-label"><span class="tip-number">10</span><span class="tip-name">Iteration</span></div><div class="tip-body"><div class="tip-desc">Build feedback loops. Tell AI when to ask questions vs. assume.</div><div class="tip-example"><span class="bad">Help me with my resume</span> <span class="arrow">→</span> Before rewriting my resume, ask me 5 questions about the target role, my top achievements, and what tone I want. Then draft based on my answers</div></div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ COMMON ISSUES ═══ -->
+<section id="issues">
+  <div class="reveal">
+    <div class="section-label">Module 06</div>
+    <h2 class="section-title">Common Issues &<br>How to Fix Them</h2>
+    <p class="section-desc">Every AI limitation has a workaround. Click each issue to reveal solutions.</p>
+  </div>
+  <div class="issues-grid">
+    <div class="issue-branch reveal reveal-delay-1" onclick="this.classList.toggle('open')">
+      <div class="issue-header"><div class="issue-icon-box" style="background:rgba(232,101,74,0.1);color:var(--accent-coral);">📚</div><div class="issue-header-text"><h3>Limited Knowledge</h3><p>Niche, private, or recent info the model doesn't have</p></div><svg class="issue-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="issue-solutions"><div class="solution-list">
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Ask it to ask clarifying questions first</strong><span>"Before answering, ask me 3 clarifying questions."</span><div class="solution-examples"><span class="example-chip">Christmas gift: age, hobbies, budget</span></div></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Provide context or tell it to search</strong><span>Paste docs, or say "Search the web for the latest…"</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Front-run failures</strong><span>Pre-supply facts: "Note: FLUX 1.1 was released in Oct 2024 and supports…"</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Add a fallback — "It's OK to not know"</strong><span>"If you're not sure, say so rather than guessing."</span></div></div>
+      </div></div>
+    </div>
+    <div class="issue-branch reveal reveal-delay-2" onclick="this.classList.toggle('open')">
+      <div class="issue-header"><div class="issue-icon-box" style="background:rgba(160,125,232,0.1);color:var(--accent-purple);">🧩</div><div class="issue-header-text"><h3>Limited Reasoning</h3><p>Struggles with complex logic, math, or multi-step problems</p></div><svg class="issue-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="issue-solutions"><div class="solution-list">
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Use a thinking model</strong><span>Select extended thinking / reasoning mode if available.</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Say "think step by step"</strong><span>"Before answering, spell out g-a-r-l-i-c and count each letter."</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Provide a plan</strong><span>"Approach this by: 1) searching, 2) filtering results, 3) writing code."</span></div></div>
+      </div></div>
+    </div>
+    <div class="issue-branch reveal reveal-delay-3" onclick="this.classList.toggle('open')">
+      <div class="issue-header"><div class="issue-icon-box" style="background:rgba(74,143,232,0.1);color:var(--accent-blue);">🎲</div><div class="issue-header-text"><h3>Randomness (Sampling)</h3><p>Probabilistic output means sometimes it picks wrong</p></div><svg class="issue-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="issue-solutions"><div class="solution-list">
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Add self-verification</strong><span>"After solving, double-check your answer by working backwards."</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Ask for multiple responses</strong><span>"Give me 3 different solutions, then pick the best and explain why."</span></div></div>
+      </div></div>
+    </div>
+    <div class="issue-branch reveal reveal-delay-4" onclick="this.classList.toggle('open')">
+      <div class="issue-header"><div class="issue-icon-box" style="background:rgba(80,208,160,0.1);color:var(--accent-mint);">📐</div><div class="issue-header-text"><h3>Wrong Format / Output / Tone</h3><p>Content is right but delivery is off</p></div><svg class="issue-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="issue-solutions"><div class="solution-list">
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Provide an example of the desired output</strong><span>"Here's what good looks like: [paste a sample]. Now do the same for my data."</span></div></div>
+        <div class="solution-item"><span class="solution-arrow">→</span><div><strong>Be prescriptive about the format</strong><span>"Respond as a markdown table / JSON / PowerPoint outline / numbered list."</span><div class="solution-examples"><span class="example-chip">Top 10 list</span><span class="example-chip">PowerPoint</span><span class="example-chip">Spreadsheet</span><span class="example-chip">Image</span></div></div></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ PATTERNS ═══ -->
+<section id="patterns">
+  <div class="reveal">
+    <div class="section-label">Module 07</div>
+    <h2 class="section-title">Advanced Prompt<br>Patterns</h2>
+    <p class="section-desc">Battle-tested patterns used by professionals.</p>
+  </div>
+  <div class="patterns-grid">
+    <div class="pattern-card reveal reveal-delay-1"><div class="pattern-badge" style="background:rgba(240,160,80,0.1);color:var(--accent-warm);">Reasoning</div><h3>Chain-of-Thought</h3><p>Ask AI to show reasoning step-by-step. Dramatically improves accuracy.</p><div class="code-block"><span class="str">"A store has 3 boxes. Each box has</span><br><span class="str">4 bags. Each bag has 5 marbles.</span><br><span class="str">How many marbles total?</span><br><br><span class="kw">Think step by step before answering."</span></div></div>
+    <div class="pattern-card reveal reveal-delay-2"><div class="pattern-badge" style="background:rgba(74,143,232,0.1);color:var(--accent-blue);">Quality</div><h3>Few-Shot Prompting</h3><p>Provide 2–3 input → output examples. The AI pattern-matches.</p><div class="code-block"><span class="cmt">// Teach the format:</span><br><span class="kw">Email:</span> <span class="str">"loved the product!"</span><br><span class="kw">Category:</span> <span class="str">Praise</span><br><span class="kw">Priority:</span> <span class="str">Low</span><br><br><span class="kw">Email:</span> <span class="str">"my order never arrived"</span><br><span class="kw">Category:</span> <span class="str">Complaint</span><br><span class="kw">Priority:</span> <span class="str">High</span><br><br><span class="cmt">// Now classify this one:</span><br><span class="kw">Email:</span> <span class="str">"can I change my address?"</span></div></div>
+    <div class="pattern-card reveal reveal-delay-3"><div class="pattern-badge" style="background:rgba(80,208,160,0.1);color:var(--accent-mint);">Perspective</div><h3>Multi-Persona Debate</h3><p>Multiple viewpoints force deeper, more balanced analysis.</p><div class="code-block"><span class="str">"Should we switch to microservices?</span><br><br><span class="str">Argue from 3 perspectives:</span><br><span class="kw">1.</span> <span class="str">The CTO (technical debt)</span><br><span class="kw">2.</span> <span class="str">The CFO (cost & risk)</span><br><span class="kw">3.</span> <span class="str">A senior dev (daily impact)</span><br><br><span class="str">Then give your recommendation."</span></div></div>
+    <div class="pattern-card reveal reveal-delay-4"><div class="pattern-badge" style="background:rgba(232,101,74,0.1);color:var(--accent-coral);">Refinement</div><h3>Iterative Sculpting</h3><p>Draft → Critique → Rewrite. Each pass sharpens the output.</p><div class="code-block"><span class="kw">You:</span> <span class="str">"Write a product description</span><br><span class="str">&nbsp;&nbsp;for our new headphones."</span><br><span class="kw">AI:</span> <span class="cmt">[drafts v1]</span><br><span class="kw">You:</span> <span class="str">"Now critique this. What's</span><br><span class="str">&nbsp;&nbsp;weak? What would a copywriter</span><br><span class="str">&nbsp;&nbsp;change?"</span><br><span class="kw">AI:</span> <span class="cmt">[identifies 4 issues]</span><br><span class="kw">You:</span> <span class="str">"Rewrite fixing all 4 issues."</span></div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ PROMPT RECIPES ═══ -->
+<section id="recipes">
+  <div class="reveal">
+    <div class="section-label">Module 08</div>
+    <h2 class="section-title">Copy-Paste<br>Prompt Recipes</h2>
+    <p class="section-desc">Ready-to-use templates you can adapt to your own work in seconds. Replace the highlighted placeholders with your details.</p>
+  </div>
+  <div class="recipes-grid">
+
+    <div class="recipe-card reveal reveal-delay-1">
+      <div class="recipe-title-row"><span class="recipe-emoji">📧</span><h3>The Perfect Email Drafter</h3></div>
+      <div class="recipe-desc">Works for any professional email — apologies, requests, follow-ups, pitches.</div>
+      <div class="recipe-prompt-block" id="recipe1">Write a <span class="placeholder">[type: apology/request/follow-up]</span> email to <span class="placeholder">[recipient + relationship]</span>.
+
+Situation: <span class="placeholder">[what happened / what you need]</span>
+
+Tone: <span class="placeholder">[warm/formal/direct/casual]</span>
+Length: Under <span class="placeholder">[word count]</span> words.
+Must include: <span class="placeholder">[specific point or call-to-action]</span>
+Must avoid: <span class="placeholder">[anything to steer clear of]</span><button class="recipe-copy-btn" onclick="copyRecipe(this)">Copy</button></div>
+    </div>
+
+    <div class="recipe-card reveal reveal-delay-2">
+      <div class="recipe-title-row"><span class="recipe-emoji">🔍</span><h3>The Expert Analyst</h3></div>
+      <div class="recipe-desc">Turns AI into a domain expert who delivers structured, actionable analysis.</div>
+      <div class="recipe-prompt-block" id="recipe2">Act as a senior <span class="placeholder">[domain: financial/marketing/legal]</span> analyst with 15 years of experience.
+
+I need you to analyze: <span class="placeholder">[topic or data]</span>
+
+Context: I'm a <span class="placeholder">[your role]</span> at a <span class="placeholder">[company type]</span>. This analysis is for <span class="placeholder">[audience: my CEO / board / team]</span>.
+
+Structure your response as:
+1. Executive summary (3 sentences)
+2. Key findings (top 3-5, with data)
+3. Risks I should flag
+4. Recommended next steps
+
+Be specific. Use numbers where possible. If you're uncertain about anything, say so.<button class="recipe-copy-btn" onclick="copyRecipe(this)">Copy</button></div>
+    </div>
+
+    <div class="recipe-card reveal reveal-delay-3">
+      <div class="recipe-title-row"><span class="recipe-emoji">💻</span><h3>The Code Generator</h3></div>
+      <div class="recipe-desc">Gets production-quality code instead of toy examples.</div>
+      <div class="recipe-prompt-block" id="recipe3">Write a <span class="placeholder">[language]</span> function called `<span class="placeholder">[function_name]</span>` that:
+
+Input: <span class="placeholder">[describe input type and format]</span>
+Output: <span class="placeholder">[describe expected return]</span>
+
+Requirements:
+- <span class="placeholder">[requirement 1]</span>
+- <span class="placeholder">[requirement 2]</span>
+- Handle edge cases: <span class="placeholder">[list them]</span>
+- Include type hints and docstring
+- Add 3 unit test examples
+
+If anything is ambiguous, ask me before coding.<button class="recipe-copy-btn" onclick="copyRecipe(this)">Copy</button></div>
+    </div>
+
+    <div class="recipe-card reveal reveal-delay-4">
+      <div class="recipe-title-row"><span class="recipe-emoji">🧠</span><h3>The Decision Helper</h3></div>
+      <div class="recipe-desc">For when you're stuck between options and need structured thinking.</div>
+      <div class="recipe-prompt-block" id="recipe4">I'm deciding between: <span class="placeholder">[Option A]</span> vs <span class="placeholder">[Option B]</span> (vs <span class="placeholder">[Option C if applicable]</span>).
+
+Context: <span class="placeholder">[your situation, constraints, goals]</span>
+
+My priorities (ranked):
+1. <span class="placeholder">[most important factor]</span>
+2. <span class="placeholder">[second factor]</span>
+3. <span class="placeholder">[third factor]</span>
+
+For each option, give me:
+- Pros (top 3)
+- Cons (top 3)  
+- The one thing most people overlook
+
+Then make a recommendation based on my stated priorities. Play devil's advocate against your own recommendation.<button class="recipe-copy-btn" onclick="copyRecipe(this)">Copy</button></div>
+    </div>
+
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ COMPARISON ═══ -->
+<section id="comparison">
+  <div class="reveal">
+    <div class="section-label">Module 09</div>
+    <h2 class="section-title">Know Your Tools:<br>The AI Landscape</h2>
+    <p class="section-desc">Different models, different strengths. Choosing the right tool is itself a skill.</p>
+  </div>
+  <div class="comparison-wrapper reveal">
+    <table class="comp-table">
+      <thead><tr><th>Category</th><th>Claude</th><th>ChatGPT</th><th>Perplexity</th><th>Grok</th><th>Gemini</th><th>DeepSeek</th><th>Copilot (GH)</th><th>Venice AI</th><th>MS Copilot</th></tr></thead>
+      <tbody>
+        <tr><td>Writing & Documents</td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td></tr>
+        <tr><td>Coding Help</td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-3">3</span></td></tr>
+        <tr><td>Real-time Web Search</td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-5">5</span></td></tr>
+        <tr><td>Image & File Understanding</td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td></tr>
+        <tr><td>Privacy & Data Safety</td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-2">2</span></td></tr>
+        <tr><td>Ease of Use</td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-5">5</span></td></tr>
+        <tr><td>MS 365 Integration</td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-5">5</span></td></tr>
+        <tr><td>Research & Fact-Finding</td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-1">1</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td></tr>
+        <tr><td>Long Documents</td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-3">3</span></td></tr>
+        <tr><td>Cost Efficiency</td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-2">2</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-5">5</span></td><td><span class="score-dot score-3">3</span></td><td><span class="score-dot score-4">4</span></td><td><span class="score-dot score-3">3</span></td></tr>
+        <tr><td style="font-weight:500;color:var(--text-secondary);font-size:.8rem;">Best For →</td><td class="best-for-cell">Legal &<br>Research</td><td class="best-for-cell">Complex<br>Reasoning</td><td class="best-for-cell">Live<br>Research</td><td class="best-for-cell">Social &<br>Finance</td><td class="best-for-cell">Google<br>Users</td><td class="best-for-cell">STEM &<br>Math</td><td class="best-for-cell">Developers</td><td class="best-for-cell">Privacy-first<br>Users</td><td class="best-for-cell">Office<br>Workers</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ═══ MINDSET ═══ -->
+<section id="mindset">
+  <div class="reveal">
+    <div class="section-label">Module 10</div>
+    <h2 class="section-title">The Prompt Engineer's<br>Mindset</h2>
+    <p class="section-desc">Beyond techniques — cultivate these mental models.</p>
+  </div>
+  <div class="mindset-grid">
+    <div class="mindset-card reveal reveal-delay-1"><div class="mindset-emoji">🔬</div><h3>Think Like a Scientist</h3><p>Experiment. Change one variable. Build a personal prompt library.</p></div>
+    <div class="mindset-card reveal reveal-delay-2"><div class="mindset-emoji">🎭</div><h3>Be the Director</h3><p>You direct a brilliant actor. Performance depends on your vision.</p></div>
+    <div class="mindset-card reveal reveal-delay-3"><div class="mindset-emoji">🪞</div><h3>Mirror, Don't Echo</h3><p>AI reflects input quality. Invest in the prompt.</p></div>
+    <div class="mindset-card reveal reveal-delay-4"><div class="mindset-emoji">♻️</div><h3>Embrace Iteration</h3><p>First prompt = rough draft. Third = polished gem.</p></div>
+    <div class="mindset-card reveal reveal-delay-5"><div class="mindset-emoji">🧩</div><h3>Compose, Don't Monolith</h3><p>Simple modular prompts beat one massive request.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">Prompt Engineering Workshop</div>
+  <p>Crafted for curious minds ready to master the AI era.</p>
+  <p style="margin-top:.5rem;">2026 — The best interface is your language.</p>
+</footer>
+
+<script>
+  // Reveal
+  const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Progress
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    document.getElementById('progressBar').style.width = ((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100) + '%';
+  });
+
+  // Nav Dots
+  const sections = ['hero','why','beforeafter','sampling','cutoff','tips','issues','patterns','recipes','comparison','mindset'];
+  const dots = document.querySelectorAll('.nav-dot');
+  dots.forEach(d => d.addEventListener('click', () => document.getElementById(d.dataset.section).scrollIntoView({ behavior: 'smooth' })));
+  const secObs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) dots.forEach(d => d.classList.toggle('active', d.dataset.section === x.target.id)); }), { threshold: 0.25 });
+  sections.forEach(id => { const el = document.getElementById(id); if(el) secObs.observe(el); });
+
+  // Floating Tokens
+  const tw = ['token','predict','sample','probability','transformer','attention','embedding','softmax','logit','decode','context','weight','layer','gradient','inference','latent','entropy','beam','greedy','nucleus'];
+  const fc = document.getElementById('floatingTokens');
+  function spawnTk() {
+    const el = document.createElement('div'); el.className = 'float-token';
+    el.textContent = tw[Math.floor(Math.random()*tw.length)];
+    el.style.left = Math.random()*100+'%';
+    el.style.animationDuration = (12+Math.random()*18)+'s';
+    el.style.animationDelay = Math.random()*2+'s';
+    el.style.fontSize = (0.55+Math.random()*0.4)+'rem';
+    fc.appendChild(el); setTimeout(()=>el.remove(),32000);
+  }
+  for(let i=0;i<15;i++) setTimeout(spawnTk,i*600);
+  setInterval(spawnTk,2000);
+
+  // Token Strip
+  const tIDs = [976,2195,966,6802,459,693,853,220,15,10263,428,802,13];
+  const strip = document.getElementById('tokenStrip');
+  new IntersectionObserver(e => e.forEach(x => {
+    if(x.isIntersecting && !strip.dataset.done) {
+      strip.dataset.done='1';
+      tIDs.forEach((id,i)=>{const c=document.createElement('span');c.className='token-chip';c.textContent=id;c.style.animationDelay=(i*0.08)+'s';strip.appendChild(c);});
+    }
+  }), {threshold:0.5}).observe(strip);
+
+  // Prob Bars
+  new IntersectionObserver(e => e.forEach(x => {
+    if(x.isIntersecting && !x.target.dataset.done) {
+      x.target.dataset.done='1';
+      x.target.querySelectorAll('.prob-fill').forEach(b => setTimeout(()=>{b.style.width=b.dataset.width+'%';},300));
+    }
+  }), {threshold:0.4}).observe(document.getElementById('probBars'));
+
+  // Timeline
+  function posCutoff() {
+    const items = document.querySelectorAll('.timeline-item');
+    if(items.length<9) return;
+    document.getElementById('cutoffMarker').style.left = ((items[7].offsetLeft+items[7].offsetWidth+items[8].offsetLeft)/2)+'px';
+  }
+  window.addEventListener('load',posCutoff);
+  window.addEventListener('resize',posCutoff);
+
+  // Copy recipe
+  function copyRecipe(btn) {
+    const block = btn.parentElement;
+    const text = block.textContent.replace('Copy','').trim();
+    navigator.clipboard.writeText(text).then(()=>{
+      btn.textContent='Copied!'; btn.style.color='var(--accent-mint)';
+      setTimeout(()=>{btn.textContent='Copy'; btn.style.color='';},2000);
+    });
+  }
+
+  // Particles
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  function rc(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} rc();
+  window.addEventListener('resize',rc);
+  class P{
+    constructor(){this.r();}
+    r(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.rad=Math.random()*1.5+.5;this.op=Math.random()*.08+.02;}
+    u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.r();}
+    d(){ctx.beginPath();ctx.arc(this.x,this.y,this.rad,0,Math.PI*2);ctx.fillStyle='rgba(240,160,80,'+this.op+')';ctx.fill();}
+  }
+  for(let i=0;i<40;i++)particles.push(new P());
+  function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{p.u();p.d();});
+    for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle='rgba(240,160,80,'+(0.03*(1-dist/120))+')';ctx.lineWidth=.5;ctx.stroke();}
+    }
+    requestAnimationFrame(anim);
+  }
+  anim();
+</script>
+</body>
+</html>
