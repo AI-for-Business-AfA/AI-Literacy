@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT in Business: Quick Reference Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0f1419;
+            --surface: #1a1f2e;
+            --surface-alt: #252c3f;
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --accent: #f97316;
+            --success: #10b981;
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --border: rgba(148, 163, 184, 0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        /* Quick Stats */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-text {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        /* Section */
+        section {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-alt) 100%);
+            border: 1px solid var(--border);
+            margin: 3rem 0;
+            padding: 2.5rem;
+            border-radius: 16px;
+        }
+
+        section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .icon-sm {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+        }
+
+        /* Prompt-Example Grid */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .prompt-example {
+            background: rgba(26, 31, 46, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prompt-side,
+        .example-side {
+            padding: 1.8rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-side {
+            background: rgba(99, 102, 241, 0.08);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .prompt-label,
+        .example-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .prompt-label {
+            color: var(--primary-light);
+        }
+
+        .example-label {
+            color: var(--success);
+        }
+
+        .prompt-text,
+        .example-text {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.2rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .example-text {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        /* Use Case Category */
+        .category-title {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(249, 115, 22, 0.08));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2.5rem 0 2rem 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Business Stack */
+        .stack-section {
+            background: rgba(26, 31, 46, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            padding: 1.8rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .stack-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stack-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stack-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(249, 115, 22, 0.08));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            stroke: var(--primary-light);
+        }
+
+        .stack-info h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: var(--text);
+        }
+
+        .stack-info p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Case Study Mini */
+        .case-mini {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .case-mini h4 {
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+        }
+
+        .case-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 0.8rem 0;
+            font-size: 0.9rem;
+        }
+
+        .case-row strong {
+            color: var(--primary-light);
+        }
+
+        .case-result {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 4rem;
+        }
+
+        /* Implementation Box */
+        .impl-box {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .impl-box h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .impl-box ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .impl-box li {
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .impl-box li:before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .prompt-grid {
+                grid-template-columns: 1fr;
+            }
+            .case-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            section { padding: 1.5rem; }
+            section h2 { font-size: 1.4rem; }
+            .stats-bar { grid-template-columns: 1fr; }
+            .prompt-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        section { animation: fadeInUp 0.6s ease-out; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ChatGPT in Business 2026</h1>
+        <p class="subtitle">Prompts, Examples & Real Tools for Business Owners</p>
+    </header>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-num">25%</div>
+                <div class="stat-text">Time Saved on Knowledge Work</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">40%</div>
+                <div class="stat-text">Quality Improvement in Writing</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">3-6 mo</div>
+                <div class="stat-text">Time to Measurable ROI</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">10-15h</div>
+                <div class="stat-text">Weekly Time Savings per Owner</div>
+            </div>
+        </div>
+
+        <!-- INFUSE Framework -->
+        <section style="margin-top: 1.5rem;">
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                </svg>
+                The INFUSE Framework: Build Better Custom GPTs
+            </h2>
+
+            <p style="color: var(--text-dim); margin-bottom: 2rem; font-size: 0.95rem;">
+                Custom GPTs are powerful, but their effectiveness depends on structure. The INFUSE framework infuses your GPT with a clear personality, intelligent navigation, and adaptive responses that make it genuinely useful—not just another chatbot.
+            </p>
+
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">🎭 I – Identity & Goal</div>
+                        <div class="prompt-text">You are a [specific role]. Your primary objective is to [clear goal]. You have expertise in [domain]. You always prioritize [what matters most].</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"You are a Marketing Strategist for SaaS companies. Your goal is to create go-to-market strategies that increase revenue. You have 10+ years B2B marketing expertise. Always prioritize measurable outcomes."</div>
+                    </div>
+                </div>
+
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">🧭 N – Navigation Rules</div>
+                        <div class="prompt-text">When users ask [type of question], follow [process]. You have access to [knowledge/resources]. Always start with [specific action]. Use command: [specific syntax].</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"When users ask about strategy, always start by understanding their current metrics. Use /metrics command to request data. You have access to industry benchmarks and case studies. Always ask 'What's your goal?' first."</div>
+                    </div>
+                </div>
+
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">🎨 F – Flow & Personality</div>
+                        <div class="prompt-text">Your tone is [tone: direct/warm/professional]. You speak like [style]. Use [language patterns]. When explaining, always [preferred communication style].</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"Your tone is direct but encouraging. You speak like a mentor—confident but not condescending. Use data + storytelling. When explaining strategy, break it into 3-5 clear moves."</div>
+                    </div>
+                </div>
+
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">👥 U – User Guidance</div>
+                        <div class="prompt-text">Guide users with this structure: 1) [First step], 2) [Second step], 3) [Final step]. Always ask [clarifying questions]. End with [specific outcome].</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"Guide strategy development with: 1) Audit current state, 2) Define target metrics, 3) Build 90-day plan. Always ask 'What's your budget?' and 'How many users?' End by providing a specific, actionable roadmap."</div>
+                    </div>
+                </div>
+
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📊 S – Signals & Adaptation</div>
+                        <div class="prompt-text">If user seems [signal], [adapt response]. If they're [emotional cue], [adjust approach]. Track [what matters] and adjust complexity accordingly.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"If user seems overwhelmed, simplify into 3 bullet points. If they're skeptical, lead with data. If they're excited, expand into advanced tactics. Adjust jargon based on their responses—they signal expertise level."</div>
+                    </div>
+                </div>
+
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">🔒 E – End Instructions</div>
+                        <div class="prompt-text">Always remember: [Core rule 1]. Never: [What not to do]. If [edge case], [specific action]. These are non-negotiable.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">Example</div>
+                        <div class="example-text">"Always remember: ROI matters more than vanity metrics. Never recommend tactics without testing data. If budget is under $5k/month, focus only on organic channels. These are non-negotiable."</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="impl-box">
+                <h4>Why INFUSE Matters</h4>
+                <ul>
+                    <li>Without structure: Generic responses that feel like standard ChatGPT</li>
+                    <li>With INFUSE: A specialized expert that understands context, adapts tone, and guides users</li>
+                    <li>Result: 3-5x more useful outputs because the GPT knows exactly how to help</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Building vs. Using Section -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M2 12h20"/>
+                </svg>
+                ChatGPT Direct vs. Custom GPT vs. Alternative Solutions
+            </h2>
+
+            <p style="color: var(--text-dim); margin-bottom: 2rem; font-size: 0.95rem;">
+                Not every problem needs AI. And not every AI problem needs a custom GPT. Here's how to decide what's right for your situation.
+            </p>
+
+            <style>
+                .comparison-table {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                    margin: 2rem 0;
+                }
+                .comparison-row {
+                    background: rgba(26, 31, 46, 0.6);
+                    border: 1px solid rgba(99, 102, 241, 0.1);
+                    border-radius: 12px;
+                    overflow: hidden;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    min-height: 200px;
+                }
+                .comparison-cell {
+                    padding: 1.5rem;
+                    border-right: 1px solid rgba(99, 102, 241, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                }
+                .comparison-cell:last-child {
+                    border-right: none;
+                }
+                .comparison-cell h4 {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    padding-bottom: 0.8rem;
+                    border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+                }
+                .comparison-cell.direct h4 {
+                    color: var(--primary-light);
+                    border-bottom-color: rgba(99, 102, 241, 0.3);
+                }
+                .comparison-cell.custom h4 {
+                    color: var(--accent);
+                    border-bottom-color: rgba(249, 115, 22, 0.3);
+                }
+                .comparison-cell.neither h4 {
+                    color: var(--success);
+                    border-bottom-color: rgba(16, 185, 129, 0.3);
+                }
+                .comparison-content {
+                    flex: 1;
+                    font-size: 0.9rem;
+                    color: var(--text-dim);
+                    line-height: 1.6;
+                }
+                .comparison-content ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                }
+                .comparison-content li {
+                    margin: 0.6rem 0;
+                    padding-left: 1.2rem;
+                    position: relative;
+                }
+                .comparison-content li:before {
+                    content: '•';
+                    position: absolute;
+                    left: 0;
+                    font-weight: bold;
+                }
+                .scenario-label {
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    color: var(--text-dim);
+                    margin-bottom: 0.8rem;
+                }
+                @media (max-width: 1024px) {
+                    .comparison-row {
+                        grid-template-columns: 1fr;
+                    }
+                    .comparison-cell {
+                        border-right: none;
+                        border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+                    }
+                    .comparison-cell:last-child {
+                        border-bottom: none;
+                    }
+                }
+            </style>
+
+            <!-- Scenario 1: One-Time Task -->
+            <div class="comparison-row">
+                <div class="comparison-cell direct">
+                    <h4>✓ Use ChatGPT Directly</h4>
+                    <div class="scenario-label">One-Time Task</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>You need it once (or rarely)</li>
+                            <li>Simple prompt does the job</li>
+                            <li>No training needed</li>
+                            <li>Example: "Draft an email," "Explain this concept"</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell custom">
+                    <h4>✗ Don't Build Custom GPT</h4>
+                    <div class="scenario-label">Overkill & Wasteful</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Too much setup for one use</li>
+                            <li>Won't be maintained</li>
+                            <li>Adds unnecessary complexity</li>
+                            <li>You'll forget about it</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell neither">
+                    <h4>Alternative</h4>
+                    <div class="scenario-label">Just Use Standard ChatGPT</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Fast, free, effective</li>
+                            <li>No setup required</li>
+                            <li>No maintenance burden</li>
+                            <li>Get answer in 30 seconds</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario 2: Repetitive Team Process -->
+            <div class="comparison-row">
+                <div class="comparison-cell direct">
+                    <h4>⚠️ ChatGPT Direct</h4>
+                    <div class="scenario-label">Repetitive, Multiple Users</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Works but inconsistent</li>
+                            <li>Each person prompts differently</li>
+                            <li>Different quality outputs</li>
+                            <li>No institutional knowledge</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell custom">
+                    <h4>✓ Build Custom GPT</h4>
+                    <div class="scenario-label">Standardize & Scale</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Same quality every time</li>
+                            <li>Team uses consistently</li>
+                            <li>5-10 min to set up INFUSE</li>
+                            <li>Example: Sales qualification, content review</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell neither">
+                    <h4>Consider</h4>
+                    <div class="scenario-label">Training First</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Teach team good prompts first</li>
+                            <li>Document best prompts</li>
+                            <li>Then build custom GPT if needed</li>
+                            <li>Saves effort of building wrong solution</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario 3: Business-Critical Decision -->
+            <div class="comparison-row">
+                <div class="comparison-cell direct">
+                    <h4>✗ Don't Use ChatGPT</h4>
+                    <div class="scenario-label">Serious Risk</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>AI hallucinations are risky</li>
+                            <li>Can't guarantee accuracy</li>
+                            <li>Liability concerns</li>
+                            <li>Example: Medical, legal, financial advice</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell custom">
+                    <h4>✗ Don't Build Custom GPT</h4>
+                    <div class="scenario-label">Same Risks, Amplified</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Custom GPT doesn't change AI limits</li>
+                            <li>Still hallucinates</li>
+                            <li>Still can be wrong with confidence</li>
+                            <li>Just makes mistakes consistent</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell neither">
+                    <h4>✓ Use Proper Tools</h4>
+                    <div class="scenario-label">Human + AI Hybrid</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Consult actual experts</li>
+                            <li>Use AI to prepare/research</li>
+                            <li>Human makes final decision</li>
+                            <li>Document audit trail</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario 4: High-Volume Repetitive Work -->
+            <div class="comparison-row">
+                <div class="comparison-cell direct">
+                    <h4>⚠️ ChatGPT Direct</h4>
+                    <div class="scenario-label">Manual & Time-Consuming</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>100 manual prompts/day</li>
+                            <li>Copy-paste everything</li>
+                            <li>Prone to errors</li>
+                            <li>Team burns out</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell custom">
+                    <h4>Maybe, But...</h4>
+                    <div class="scenario-label">Consider Automation First</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Custom GPT helps consistency</li>
+                            <li>But still manual</li>
+                            <li>Better: Integrate with API</li>
+                            <li>Or: Use workflow automation tool</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell neither">
+                    <h4>✓ Build Integration</h4>
+                    <div class="scenario-label">Full Automation</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Use ChatGPT API</li>
+                            <li>Connect to Make, Zapier</li>
+                            <li>Automate end-to-end</li>
+                            <li>Example: Bulk email personalization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario 5: Sensitive/Confidential Data -->
+            <div class="comparison-row">
+                <div class="comparison-cell direct">
+                    <h4>✗ Don't Use ChatGPT</h4>
+                    <div class="scenario-label">Data Privacy Risk</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>OpenAI trains on inputs</li>
+                            <li>Customer data exposed</li>
+                            <li>PII concerns (GDPR, etc.)</li>
+                            <li>Company liability</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell custom">
+                    <h4>✗ Don't Build Custom GPT</h4>
+                    <div class="scenario-label">Same Privacy Risk</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Still sends data to OpenAI</li>
+                            <li>Custom layer doesn't protect data</li>
+                            <li>Your knowledge base is visible</li>
+                            <li>Same GDPR/compliance issues</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-cell neither">
+                    <h4>✓ Use Private Solutions</h4>
+                    <div class="scenario-label">On-Prem or Approved</div>
+                    <div class="comparison-content">
+                        <ul>
+                            <li>Self-hosted LLM (Ollama)</li>
+                            <li>Enterprise ChatGPT (approved)</li>
+                            <li>Industry-specific solution</li>
+                            <li>Data stays in your control</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decision Framework -->
+            <div class="impl-box" style="margin-top: 2.5rem;">
+                <h4>Quick Decision Framework</h4>
+                <ul>
+                    <li>One-time, simple task? → ChatGPT directly (30 seconds)</li>
+                    <li>Team does this weekly? → Build Custom GPT (5 min setup)</li>
+                    <li>Critical business decision? → Consult experts, use AI as research tool only</li>
+                    <li>High-volume, 100+ times/day? → Build API integration (automate completely)</li>
+                    <li>Sensitive customer data? → Don't use any cloud AI without approval</li>
+                </ul>
+            </div>
+        </section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11H3v2h6v-2zm-2 6H3v2h4v-2zm0-4H3v2h4v-2zm12-2v6h-6v-6h6zm-2 2h-2v2h2v-2z"/>
+                </svg>
+                Marketing & Content
+            </h2>
+
+            <div class="category-title">Email Marketing Campaign</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">You're an expert email marketer. Create a 3-email nurture sequence for [product/service]. Target audience: [description]. Goal: [conversion goal]. Make each email short, compelling, with clear CTAs. Include subject lines.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">Email 1: "Here's what you're missing"
+Subject: 1 reason [competitors] chose us
+
+Email 2: "Social proof"
+Subject: 847 companies now...
+
+Email 3: "Special offer"
+Subject: Just for you...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">Social Media Strategy</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Create a one-week Instagram content plan for [brand]. Target: [audience]. Include: post types, hashtags, captions, posting times, and 2-3 caption variations per post.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">Monday: Carousel (Tips)
+9am EST | 8 captions
+#solution #tips #howto
+
+Wednesday: Testimonial
+12pm EST | 5 variations
+#proven #results
+
+Friday: Behind-the-scenes
+5pm EST | Story + Post</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">Ad Copy Testing</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Write 5 different Google Ads headlines for [product]. Each should target a different angle: pain, solution, benefit, urgency, social proof. Max 30 characters each.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">1. "Save 10 Hours/Week"
+2. "Finally, Effortless [Task]"
+3. "Join 5,000+ Users"
+4. "Last Chance: 50% Off"
+5. "The #1 [Category] Tool"</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Operations -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="1"/>
+                    <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.54 2.54l4.24 4.24M1 12h6m6 0h6m-17.78 7.78l4.24-4.24m2.54-2.54l4.24-4.24"/>
+                </svg>
+                Operations & Management
+            </h2>
+
+            <div class="category-title">Project Planning</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Generate a work breakdown structure (WBS) for [project]. Include: main phases, subtasks, estimated duration, dependencies, and 3 key risks. Format for Notion/Excel.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">Phase 1: Planning (2w)
+├ Define scope (3d)
+├ Stakeholder alignment (2d)
+└ Resource allocation (2d)
+
+Phase 2: Execution (4w)
+├ Development (3w)
+└ Testing (1w)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">Meeting Minutes & Action Items</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">[Paste meeting transcript]. Extract: 3 key decisions, 5 action items (with owner + deadline), 2 risks discussed. Format as executive summary.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">DECISIONS:
+- Launch Q2 campaign
+- Budget increase 15%
+
+ACTION ITEMS:
+Sarah: Finalize budget (Fri)
+Mike: Competitor analysis (Wed)
+Team: Review proposal (Mon)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">SOP Creation</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Create a step-by-step SOP for [process]. Include: prerequisites, 8-10 numbered steps, decision points, common errors, and troubleshooting.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">1. Log into [system]
+2. Click "New" button
+3. Fill required fields
+   ├ If [condition]: do X
+   └ Else: do Y
+4. Review & submit
+5. Confirm email receipt
+
+Common Errors:
+- Field X left blank
+- Date format wrong</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Sales & Customer Service -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Sales & Customer Service
+            </h2>
+
+            <div class="category-title">Sales Pitch & Positioning</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Create a 30-second elevator pitch for [product/service]. Target buyer: [persona]. Their main pain: [pain point]. Include: problem, solution, benefit, CTA.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">"Most [role] spend 8+ hours on [task]. We cut that to 2 hours using [method]. [Company] saw 40% faster output. Want to see it in action?"</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">Customer Support Templates</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Create 3 customer support email templates: (1) Bug reported, (2) Refund request, (3) Feature suggestion. Tone: helpful, professional. Include variables [bracketed].</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">TEMPLATE 1 - Bug Fix:
+"Thanks for reporting [issue]. We've identified the cause and pushed a fix. It'll roll out [date]. Apologies for the inconvenience!"
+
+TEMPLATE 2 - Refund:
+"Your refund of [amount] has been issued to [method]. You should see it [timeframe]."</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-title">FAQ Generation</div>
+            <div class="prompt-grid">
+                <div class="prompt-example">
+                    <div class="prompt-side">
+                        <div class="prompt-label">📋 Prompt</div>
+                        <div class="prompt-text">Based on these common customer questions: [list 5-10 questions]. Create a 15-item FAQ with clear, concise answers. Organize by category.</div>
+                    </div>
+                    <div class="example-side">
+                        <div class="example-label">✓ Output</div>
+                        <div class="example-text">PRICING
+Q: Do you have annual plans?
+A: Yes, 20% discount...
+
+SETUP
+Q: How long to implement?
+A: 2-3 hours for most...
+
+FEATURES
+Q: Can I export data?
+A: Yes, CSV, JSON...</div>
+                    </div>
+                </div>
+            </section>
+
+        <!-- Section 4: AI Stack -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="6" width="20" height="14" rx="2"/>
+                    <path d="M6 6V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Your AI Stack: Tools That Work Together
+            </h2>
+
+            <div class="stack-section">
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>ChatGPT</h4>
+                        <p><strong>Use for:</strong> Brainstorming, writing, research, email drafts, concept explanation | <strong>Time saved:</strong> 5-8 hrs/week</p>
+                    </div>
+                </div>
+
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11H3v2h6v-2z"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>Perplexity AI</h4>
+                        <p><strong>Use for:</strong> Real-time research, current events, competitor analysis | <strong>Time saved:</strong> 2-3 hrs/week</p>
+                    </div>
+                </div>
+
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>Canva Magic + Jasper AI</h4>
+                        <p><strong>Use for:</strong> Visuals (Canva), ad copy (Jasper) | <strong>Time saved:</strong> 4-6 hrs/week</p>
+                    </div>
+                </div>
+
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>Clay + Apollo</h4>
+                        <p><strong>Use for:</strong> Lead enrichment, prospect research | <strong>Time saved:</strong> 6-8 hrs/week</p>
+                    </div>
+                </div>
+
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 19l-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>Grammarly + Hemingway</h4>
+                        <p><strong>Use for:</strong> Writing quality, clarity, tone | <strong>Time saved:</strong> 1-2 hrs/week</p>
+                    </div>
+                </div>
+
+                <div class="stack-item">
+                    <div class="stack-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                    </div>
+                    <div class="stack-info">
+                        <h4>Otter AI + Notion AI</h4>
+                        <p><strong>Use for:</strong> Meeting transcription, task organization | <strong>Time saved:</strong> 2-4 hrs/week</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="impl-box">
+                <h4>How to Build Your Stack</h4>
+                <ul>
+                    <li>Week 1: Identify your biggest time-wasters (quantify in hours)</li>
+                    <li>Week 2: Find one tool that solves that problem, start free trial</li>
+                    <li>Week 3-4: Use intensively, measure actual hours saved</li>
+                    <li>Week 5+: Add next tool when first one is mastered</li>
+                    <li>Target: 10-15 hours/week saved within 8 weeks</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Case Studies -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+                Real Impact: 30-Second Case Studies
+            </h2>
+
+            <div class="case-mini">
+                <h4>Morgan Stanley — Wealth Management</h4>
+                <div class="case-row">
+                    <div><strong>Problem:</strong> Days analyzing research documents</div>
+                    <div><strong>Solution:</strong> GPT-4 chatbot for content search</div>
+                </div>
+                <div class="case-result">✓ Multi-hour analysis → Real-time insights</div>
+            </div>
+
+            <div class="case-mini">
+                <h4>Yabble — Market Research</h4>
+                <div class="case-row">
+                    <div><strong>Problem:</strong> Days coding survey responses</div>
+                    <div><strong>Solution:</strong> GPT-3 auto-transforms to themes</div>
+                </div>
+                <div class="case-result">✓ Multi-day manual work → Minutes of automation</div>
+            </div>
+
+            <div class="case-mini">
+                <h4>Waymark — Video Creation</h4>
+                <div class="case-row">
+                    <div><strong>Problem:</strong> Expensive, slow script writing</div>
+                    <div><strong>Solution:</strong> GPT-3 generates custom scripts instantly</div>
+                </div>
+                <div class="case-result">✓ $500+ per script → Instant personalized content</div>
+            </div>
+
+            <div class="case-mini">
+                <h4>Stripe — Payments Platform</h4>
+                <div class="case-row">
+                    <div><strong>Problem:</strong> Manual support routing & fraud detection</div>
+                    <div><strong>Solution:</strong> GPT-4 for intelligent automation</div>
+                </div>
+                <div class="case-result">✓ Scalable support without proportional cost</div>
+            </div>
+        </section>
+
+        <!-- Section 6: Quick Implementation -->
+        <section>
+            <h2>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                </svg>
+                Your 30-Day Action Plan
+            </h2>
+
+            <div class="impl-box">
+                <h4>Week 1: Discovery</h4>
+                <ul>
+                    <li>Track your week: What takes most time?</li>
+                    <li>Identify 3-5 repetitive tasks (quantify hours)</li>
+                    <li>Prioritize: Pick the one worth the most time</li>
+                </ul>
+            </div>
+
+            <div class="impl-box">
+                <h4>Week 2-3: Test & Iterate</h4>
+                <ul>
+                    <li>Find one tool solving that problem</li>
+                    <li>Use it intensively for 5 working days</li>
+                    <li>Measure: Actual hours saved vs. baseline</li>
+                    <li>Document what works (prompts, templates, workflows)</li>
+                </ul>
+            </div>
+
+            <div class="impl-box">
+                <h4>Week 4: Scale & Plan Next</h4>
+                <ul>
+                    <li>Roll tool into daily workflow</li>
+                    <li>Train team (if applicable)</li>
+                    <li>Add next tool (repeat Week 2-3)</li>
+                    <li>Target by Week 8: 10-15 hours/week saved</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p><strong>ChatGPT in Business: Quick Reference Guide 2026</strong></p>
+        <p>Sources: Harvard Business School, MIT Sloan, UBS Analysis | Real prompts from business practitioners</p>
+    </footer>
+
+</body>
+</html>
